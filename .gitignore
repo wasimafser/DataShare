@@ -129,7 +129,7 @@ dmypy.json
 .pyre/
 
 test.py
-recieved/
+received/
 buildozer/
 bin/
 .buildozer/
