@@ -1,0 +1,11 @@
+<MainScreen>:
+    id: main_screen
+    name: 'main_screen'
+    BoxLayout:
+        orientation: 'vertical'
+        MDFlatButton:
+            text: "SEND"
+            on_release: app.sm.current = 'send_screen'
+        MDFlatButton:
+            text: "RECEIVE"
+            on_release: app.sm.current = 'receive_screen'
