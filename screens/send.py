@@ -7,6 +7,9 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.filemanager import MDFileManager
 
+import socket
+import pathlib
+
 Builder.load_string("""
 <ReceiverPropmtContent>:
     orientation: 'vertical'
@@ -38,11 +41,30 @@ class SendScreen(Screen):
             select_path=self.on_select_path,
         )
 
+    def send_file(self, path):
+        port = 5001
+        buffer_size = 1024
+
+        s = socket.socket()
+        s.connect((self.receiver_ip, port))
+        print("connected")
+
+        file_name = pathlib.Path(path).name
+        s.send(file_name.encode('utf-8'))
+
+        with open(path, 'rb') as file:
+            packet = file.read(buffer_size)
+            while len(packet) != 0:
+                s.send(packet)
+                packet = file.read(buffer_size)
+
+        s.close()
+
     def on_filemanager_exit(self, *args):
         self.file_manager.close()
 
     def on_select_path(self, path):
-        print(path)
+        self.send_file(path)
         self.file_manager.close()
 
     def open_filemanager(self, *args):
