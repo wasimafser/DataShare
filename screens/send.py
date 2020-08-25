@@ -2,6 +2,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty
+from kivy.utils import platform
 
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
@@ -69,6 +70,8 @@ class SendScreen(Screen):
 
     def open_filemanager(self, *args):
         path = "/"
+        if platform == 'android':
+            path = '/storage/emulated/0/'
         self.file_manager.show(path)
 
     def set_receiver_ip(self, value):
