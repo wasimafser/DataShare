@@ -133,3 +133,4 @@ received/
 buildozer/
 bin/
 .buildozer/
+.DS_Store

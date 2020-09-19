@@ -3,9 +3,26 @@
     name: 'main_screen'
     BoxLayout:
         orientation: 'vertical'
-        MDFlatButton:
-            text: "SEND"
-            on_release: app.sm.current = 'send_screen'
-        MDFlatButton:
-            text: "RECEIVE"
-            on_release: app.sm.current = 'receive_screen'
+        size_hint_y: None
+        pos_hint: {'top': 0.9}
+        MDLabel:
+            text: 'DataShare'
+            font_style: 'H3'
+            halign: 'center'
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: dp(20)
+            padding: [dp(10), 0, dp(10), 0]
+            size_hint_y: None
+            MDRectangleFlatButton:
+                text: "SEND"
+                size_hint_x: 0.4
+                text_color: app.theme_cls.opposite_bg_dark
+                md_bg_color: app.theme_cls.primary_light
+                on_release: app.sm.current = 'send_screen'
+            MDRectangleFlatButton:
+                text: "RECEIVE"
+                size_hint_x: 0.4
+                text_color: app.theme_cls.opposite_bg_dark
+                md_bg_color: app.theme_cls.primary_dark
+                on_release: app.sm.current = 'receive_screen'

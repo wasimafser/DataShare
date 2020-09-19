@@ -5,6 +5,7 @@ from kivy.properties import StringProperty
 import socket
 import threading
 import pathlib
+from struct import unpack
 
 Builder.load_string("""
 <ReceiveScreen>:
@@ -13,7 +14,28 @@ Builder.load_string("""
     BoxLayout:
         MDLabel:
             text: root.ip
+            font_style: 'H3'
+            halign: 'center'
 """)
+
+class Receiver:
+    address = '0.0.0.0'
+    port = 5001
+
+    socket = None
+
+    def listen(self):
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.bind((self.address, self.port))
+        self.socket.listen(5)
+        return self.socket.accept()[0]
+
+    def close(self):
+        self.socket.close()
+
+    def convert_int(self, integer):
+        return unpack('!Q', integer)[0]
+
 
 class ReceiveScreen(Screen):
     ip = StringProperty("")
@@ -34,26 +56,42 @@ class ReceiveScreen(Screen):
         thread.start()
 
     def receive_file(self, *args):
-        port = 5001
-        buffer_size = 1024
-
-        s = socket.socket()
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind(("0.0.0.0", port))
-        s.listen(5)
-
-        client_socket, client_address = s.accept()
-        print("Connected")
-
-        file_name = client_socket.recv(buffer_size).decode('utf-8')
-        print(file_name)
+        self.receiver = Receiver()
+        self.socket = self.receiver.listen()
 
         pathlib.Path("received").mkdir(exist_ok=True)
 
-        with open(f"received/{file_name}", 'wb') as file:
-            packet = client_socket.recv(buffer_size)
-            while len(packet) != 0:
-                file.write(packet)
-                packet = client_socket.recv(buffer_size)
+        # RECEIVE NUMBER OF FILES
+        num_of_files = self.receiver.convert_int(self.socket.recv(8))
 
-        s.close()
+        for i in range(num_of_files):
+
+            # RECEIVE FILE NAME SIZE
+            file_name_size = self.receiver.convert_int(self.socket.recv(8))
+            # RECEIVE FILE NAME
+            file_name = self.socket.recv(file_name_size).decode('utf-8')
+
+            # RECEIVE FILE SIZE
+            file_size = self.receiver.convert_int(self.socket.recv(8))
+
+            # RECEIVE FILE
+            buffer_size = 4096
+            recv_size = 0
+            with open(f"received/{file_name}", 'wb') as file:
+                while True:
+                    if file_size < buffer_size:
+                        buffer_size = file_size
+                    packet = self.socket.recv(buffer_size)
+                    file.write(packet)
+                    recv_size += buffer_size
+
+                    delta = file_size - recv_size
+                    buffer_size = delta if delta < buffer_size else buffer_size
+
+                    if recv_size == file_size or buffer_size == 0:
+                        break
+
+            print(f"RECEIVED FILE {i+1}")
+
+        print("RECEIVED ALL")
+        self.receiver.close()
