@@ -19,10 +19,12 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      
+
       - name: Build with Buildozer
         uses: ArtemSBulgakov/buildozer-action@v1
         id: buildozer
+        env:
+          APP_ANDROID_SDK_PATH: ""
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
