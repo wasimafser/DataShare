@@ -134,3 +134,4 @@ buildozer/
 bin/
 .buildozer/
 .DS_Store
+!buildozer.spec
