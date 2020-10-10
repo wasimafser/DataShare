@@ -5,6 +5,7 @@ from kivy.properties import StringProperty
 import socket
 import threading
 import pathlib
+import plyer
 from struct import unpack
 
 Builder.load_string("""
@@ -59,7 +60,13 @@ class ReceiveScreen(Screen):
         self.receiver = Receiver()
         self.socket = self.receiver.listen()
 
-        pathlib.Path("received").mkdir(exist_ok=True)
+        downloads_path = ""
+        try:
+            downloads_path = plyer.storagepath.get_downloads_dir()
+        except Exception as e:
+            pass
+
+        pathlib.Path(f"{downloads_path}/DataShare").mkdir(exist_ok=True)
 
         # RECEIVE NUMBER OF FILES
         num_of_files = self.receiver.convert_int(self.socket.recv(8))
