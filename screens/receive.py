@@ -62,7 +62,7 @@ class ReceiveScreen(Screen):
 
         downloads_path = ""
         try:
-            downloads_path = plyer.storagepath.get_downloads_dir()
+            downloads_path = plyer.storagepath.get_downloads_dir().replace("file://", '')
         except Exception as e:
             pass
 
@@ -84,7 +84,7 @@ class ReceiveScreen(Screen):
             # RECEIVE FILE
             buffer_size = 4096
             recv_size = 0
-            with open(f"received/{file_name}", 'wb') as file:
+            with open(f"{downloads_path}/DataShare/{file_name}", 'wb') as file:
                 while True:
                     if file_size < buffer_size:
                         buffer_size = file_size
